@@ -30,8 +30,38 @@ int server::init(){
 		throw std::runtime_error("Failed to listen on the socket\n");
 	}
 	this->socket_file = socket_fd;
+
+	pollfd g;
+	g.events = POLLIN;
+	g.fd = this->socket_file;
+	g.revents = 0;
+	fds.push_back(g);
+
+	while (true)
+	{
+		poll(fds.data(), fds.size(), -1);
+		if (fds[0].events & POLLIN){
+			int client_fd = accept4(this->socket_file, NULL, NULL);
+		if (client_fd < 0){
+			throw std::runtime_error("clien sockect failed\n");
+		}
+		{		
+			pollfd b;
+			b.events = POLLIN;
+			b.fd = client_fd;
+			b.revents = 0;
+		}
+		{
+			Clients x;
+			x.set_Values(this->socket_file);
+			client.push_back(x);
+		}
+		for (size_t i = 0; i < fds.size(); i++){
+			Clients &client = client[i - 1];
+		}
+	}	
 	return 1;
-}
+};
 
 
 server::server(std::string port, std::string passwd)
@@ -43,5 +73,3 @@ server::server(std::string port, std::string passwd)
 		throw std::invalid_argument("Wrong Passwrd\n");
 	this->passwd = passwd;
 }
-
-

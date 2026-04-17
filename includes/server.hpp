@@ -22,7 +22,7 @@ private:
     int port;
     std::string passwd;
     int socket_file;
-    std::map<int ,clinets> client;
+    std::vector<clients> client;
     std::vector<pollfd> fds;
 public:
     server(std::string port, std::string passwd);
