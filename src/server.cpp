@@ -21,6 +21,15 @@ int server::init(){
     if (socket_fd == -1){
         throw std::runtime_error("socket_fd failed");
 	}
+	if (bind(socket_fd, (struct sockaddr *)&so, sizeof(so)) == -1){
+		close(socket_fd);
+		throw std::runtime_error("Failed to bind socket\n");
+	}
+	if (listen(socket_fd, 15)){
+		close(socket_fd);
+		throw std::runtime_error("Failed to listen on the socket\n");
+	}
+	this->socket_file = socket_fd;
 	return 1;
 }
 
