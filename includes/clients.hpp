@@ -1,16 +1,22 @@
 #ifndef CLIENTS_HPP
 #define CLIENTS_HPP
 
-#include "server.hpp"
+#include <iostream>
+#include <string>
 
-class clinets
+class Clients
 {
 private:
     int client_fd;
     std::string buffer;
 public:
-    void appendMsg(std::string msg, int size);
-    bool hascompleteMg();
+    Clients(){};
+    ~Clients(){};
+    bool appendMsg(const std::string &msg, int size);
+    bool hasCompleteMessage();
+    bool popLine(std::string &line);
+    int getFd() const;
+    void setValues(int fd);
 };
 
 #endif

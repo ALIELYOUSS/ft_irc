@@ -1,47 +1,33 @@
 #include "../includes/server.hpp"
 
-static int is_wspace(const std::string &passwd)
+void server::handle_client_line(Clients &cl, const std::string &line)
 {
-	for (size_t i = 0; i < passwd.size(); i++)
-	{
-		if ((passwd[i] >= 9 && passwd[i] <= 13) || passwd[i] == ' ')
-			return 0;
-	}
-	return 1;
+	if (line.empty())
+		return;
+	std::cout << "[CLIENT fd" << cl.getFd() << "] " << line << std::endl;
 }
-
-int server::init(){
-    struct sockaddr_in so;
-    memset(&so, 0 , sizeof(struct sockaddr_in));
-    so.sin_family = AF_INET;
-    so.sin_port = htons(this->port);
-    so.sin_addr.s_addr = INADDR_ANY;
-
-    int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_fd == -1){
-        throw std::runtime_error("socket_fd failed");
-	}
-	if (bind(socket_fd, (struct sockaddr *)&so, sizeof(so)) == -1){
-		close(socket_fd);
-		throw std::runtime_error("Failed to bind socket\n");
-	}
-	if (listen(socket_fd, 15)){
-		close(socket_fd);
-		throw std::runtime_error("Failed to listen on the socket\n");
-	}
-	this->socket_file = socket_fd;
-	return 1;
-}
-
 
 server::server(std::string port, std::string passwd)
 {
-	this->port = atoi(port.c_str());
-	if (this->port < 1024 || this->port > 65535)
-		throw std::invalid_argument("Wrong Port\n");
-	if (!is_wspace(passwd))
-		throw std::invalid_argument("Wrong Passwrd\n");
+	this->port = parsePort(port);
+	if (!passwordHasNoWhitespace(passwd))
+		throw std::invalid_argument("No white spaces allowed in the Passwrd\n");
 	this->passwd = passwd;
+	std::cout << "[INIT] Server constructed. Port: " << this->port << ", Password: " << this->passwd << std::endl;
 }
 
-
+int server::init(){
+	std::cout << "[INIT] Starting server initialization..." << std::endl;
+	this->setup_listener();
+	std::cout << "[INIT] Listener setup complete on port " << this->port << std::endl;
+	this->install_signal_handlers();
+	std::cout << "[INIT] Signal handlers installed (SIGINT, SIGTERM)" << std::endl;
+	server::running = 1;
+	std::cout << "[INIT] Entering event loop..." << std::endl;
+	this->run_event_loop();
+	std::cout << "[SHUTDOWN] Event loop ended, closing sockets..." << std::endl;
+	close_socks(this->fds);
+	this->client.clear();
+	std::cout << "[SHUTDOWN] All clients cleared. Server stopped." << std::endl;
+	return 1;
+}
