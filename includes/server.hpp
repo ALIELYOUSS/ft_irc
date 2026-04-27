@@ -1,8 +1,10 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "channel.hpp"
 #include "clients.hpp"
 #include <unistd.h>
+#include <signal.h>
 #include <string.h>
 #include<iostream>
 #include<sstream>
@@ -18,15 +20,30 @@
 
 class server
 {
-private:
+    private:
     int port;
     std::string passwd;
     int socket_file;
-    std::vector<clients> client;
-    std::vector<pollfd> fds;
+    static volatile sig_atomic_t running;
+    void handle_client_line(Clients &cl, const std::string &line);
+    void setup_listener();
+    void install_signal_handlers();
+    void run_event_loop();
+    void accept_client();
+    void handle_client_event(size_t index);
+    void remove_client(size_t index);
+    static void handle_signal(int signum);
+    static pollfd make_pollfd(int fd);
+    void close_socks(std::vector<pollfd> &fds);
 public:
+    std::map<std::string, Channel> channels;
+    std::vector<Clients> client;
+    std::vector<pollfd> fds;
     server(std::string port, std::string passwd);
     int init();
 };
+
+int parsePort(const std::string &port);
+bool passwordHasNoWhitespace(const std::string &passwd);
 
 #endif

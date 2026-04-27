@@ -1,7 +1,8 @@
 #ifndef CLIENTS_HPP
 #define CLIENTS_HPP
 
-#include "server.hpp"
+#include <iostream>
+#include <string>
 
 class Clients
 {
@@ -11,9 +12,11 @@ private:
 public:
     Clients(){};
     ~Clients(){};
-    void appendMsg(std::string msg, int size);
-    bool hascompleteMg();
-    void set_Values(int fd);
+    bool appendMsg(const std::string &msg, int size);
+    bool hasCompleteMessage();
+    bool popLine(std::string &line);
+    int getFd() const;
+    void setValues(int fd);
 };
 
 #endif

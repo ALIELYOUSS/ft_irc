@@ -1,18 +1,18 @@
 # Next Steps Roadmap
 
 ## Phase 1: Stabilize Core Runtime
-- [ ] Wire startup flow from program entry to active server loop.
-- [ ] Add clear socket lifecycle ownership in server class.
-- [ ] Add robust startup failure handling and cleanup.
-- [ ] Add shutdown path to close all descriptors cleanly.
+- [x] Wire startup flow from program entry to active server loop.
+- [x] Add clear socket lifecycle ownership in server class.
+- [x] Add robust startup failure handling and cleanup.
+- [x] Add shutdown path to close all descriptors cleanly.
 
 Definition of done:
 - Server starts, listens, accepts client connections, and exits cleanly without leaks.
 
 ## Phase 2: Build Connection Model
-- [ ] Define client state model and storage container on server.
-- [ ] Define channel state model and membership rules.
-- [ ] Add input buffering and line parsing policy.
+- [x] Define client state model and storage container on server.
+- [x] Define channel state model and membership rules.
+- [x] Add input buffering and line parsing policy.
 - [ ] Add output queue strategy for partial writes.
 
 Definition of done:
