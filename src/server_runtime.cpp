@@ -5,9 +5,8 @@
 
 volatile sig_atomic_t server::running = 1;
 
-static void debug_print_bytes(const std::string &label, const char *buf, size_t len)
+static void debug_print_bytes(const char *buf, size_t len)
 {
-	std::cout << "[DEBUG] " << label << " (" << len << " bytes): ";
 	for (size_t i = 0; i < len && i < 100; ++i)
 	{
 		unsigned char c = buf[i];
@@ -54,35 +53,31 @@ void server::setup_listener()
 	int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_fd == -1)
 	{
-		std::cerr << "[ERROR] socket() failed" << std::endl;
+		std::cerr << "socket() failed" << std::endl;
 		throw std::runtime_error("socket_fd failed");
 	}
-	std::cout << "[SOCKET] Created listener socket fd=" << socket_fd << std::endl;
+	std::cout << "Created listener socket fd=" << socket_fd << std::endl;
 
 	int reuseAddr = 1;
 	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) == -1)
 	{
 		close(socket_fd);
-		std::cerr << "[ERROR] setsockopt(SO_REUSEADDR) failed" << std::endl;
+		std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
 		throw std::runtime_error("Failed to set SO_REUSEADDR\n");
 	}
-	std::cout << "[SOCKET] SO_REUSEADDR set" << std::endl;
 
 	if (bind(socket_fd, (struct sockaddr *)&address, sizeof(address)) == -1)
 	{
 		close(socket_fd);
-		std::cerr << "[ERROR] bind() failed on port " << this->port << std::endl;
+		std::cerr << "bind() failed on port " << this->port << std::endl;
 		throw std::runtime_error("Failed to bind socket\n");
 	}
-	std::cout << "[SOCKET] Bound to 0.0.0.0:" << this->port << std::endl;
 
 	if (listen(socket_fd, 15) == -1)
 	{
 		close(socket_fd);
-		std::cerr << "[ERROR] listen() failed" << std::endl;
 		throw std::runtime_error("Failed to listen on the socket\n");
 	}
-	std::cout << "[SOCKET] Listening (backlog=15)" << std::endl;
 
 	this->socket_file = socket_fd;
 	this->fds.push_back(make_pollfd(this->socket_file));
@@ -106,7 +101,7 @@ void server::accept_client()
 	int client_sock = accept(this->socket_file, NULL, NULL);
 	if (client_sock < 0)
 	{
-		std::cerr << "[ERROR] accept() failed" << std::endl;
+		std::cerr << "accept() failed" << std::endl;
 		throw std::runtime_error("client fd socket fail");
 	}
 
@@ -160,7 +155,7 @@ void server::handle_client_event(size_t index)
 	ssize_t bytes = recv(this->fds[index].fd, buf, sizeof(buf), 0);
 	if (bytes < 0)
 	{
-		std::cerr << "[ERROR] recv() failed on fd=" << fd << std::endl;
+		std::cerr << "recv() failed on fd=" << fd << std::endl;
 		remove_client(index);
 		return;
 	}
@@ -172,7 +167,7 @@ void server::handle_client_event(size_t index)
 	}
 
 	std::cout << "[RECV] fd=" << fd << " received " << bytes << " bytes" << std::endl;
-	debug_print_bytes("Raw data", buf, bytes);
+	debug_print_bytes(buf, bytes);
 
 	if (!this->client[index - 1].appendMsg(std::string(buf, bytes), bytes))
 	{
@@ -193,10 +188,8 @@ void server::handle_client_event(size_t index)
 
 void server::run_event_loop()
 {
-	std::cout << "[LOOP] Starting poll loop with " << this->fds.size() << " fd(s)" << std::endl;
 	while (server::running)
 	{
-		std::cout << "[LOOP] poll() waiting on " << this->fds.size() << " fd(s)..." << std::endl;
 		int ready = poll(this->fds.data(), this->fds.size(), -1);
 		if (ready < 0)
 		{
@@ -210,7 +203,7 @@ void server::run_event_loop()
 				std::cout << "[LOOP] poll() interrupted, retrying" << std::endl;
 				continue;
 			}
-			std::cerr << "[ERROR] poll() failed" << std::endl;
+			std::cerr << "poll() failed" << std::endl;
 			throw std::runtime_error("poll failed\n");
 		}
 		if (ready == 0)
@@ -218,8 +211,6 @@ void server::run_event_loop()
 			std::cout << "[LOOP] poll() timeout (shouldn't happen with -1 timeout)" << std::endl;
 			continue;
 		}
-
-		std::cout << "[LOOP] poll() returned " << ready << " ready fd(s)" << std::endl;
 
 		if (this->fds[0].revents & POLLIN)
 		{
@@ -237,5 +228,4 @@ void server::run_event_loop()
 				++i;
 		}
 	}
-	std::cout << "[LOOP] Event loop ended" << std::endl;
 }

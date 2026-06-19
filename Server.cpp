@@ -22,12 +22,13 @@ int main(){
 
         //  bind the socket in the kernel
 
-        bind(sock, (const)(struct sockaddr_in *)&addrs, sizeof(addrs));
+        bind(sock, (struct sockaddr *)&addrs, sizeof(addrs));
 
         int client_sock = accept(sock, NULL, NULL);
         
         char buff[800];
 
+        
 
     }
     catch (std::exception& error){
