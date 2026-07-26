@@ -8,7 +8,8 @@ void server::process_client_buffers()
 		while (this->client[i].popLine(line))
 		{
 			this->handle_client_line(this->client[i], line);
-			this->handle_commands();
+			this->handle_commands(i);
+			this->flush_out_buffers();
 		}
 	}
 }

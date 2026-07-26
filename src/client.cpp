@@ -45,7 +45,7 @@ bool Clients::appendMsg(const std::string &msg, int size){
         return false;
     if (this->buffer.size() + static_cast<size_t>(size) > kMaxClientBufferBytes)
         return false;
-    this->buffer.append(msg, size);
+    this->buffer.append(msg, 0, size);
     return true;
 }
 

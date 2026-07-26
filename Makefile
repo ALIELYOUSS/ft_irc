@@ -10,6 +10,8 @@ SRCS = \
 	src/server_runtime.cpp \
 	src/commands_tools/server_buffer.cpp \
 	src/commands_tools/server_commands.cpp \
+	src/commands_tools/server_ping.cpp \
+	src/commands_tools/server_send.cpp \
 	src/commands_tools/server_registration.cpp \
 	src/client.cpp \
 	src/channel.cpp \

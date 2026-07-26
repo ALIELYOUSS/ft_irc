@@ -59,8 +59,6 @@ void server::cl_registration(Clients &client, const std::string &cmd)
 			client.out_buf = "ERR_ALREADYREGISTRED\r\n";
 		else if (cmpnts.size() < cmpnt_index + 2)
 			client.out_buf = "ERR_NEEDMOREPARAMS\r\n";
-		else if (client.nickname.empty() && client.username.empty())
-			client.out_buf = "NICK/USER first\r\n";
 		else if (!isMiddleType(cmpnts[cmpnt_index + 1]))
 			client.out_buf = "ERR_INVALID_COMMAND\r\n";
 		else
@@ -81,7 +79,7 @@ void server::cl_registration(Clients &client, const std::string &cmd)
 	{
 		if (client.registred)
 			client.out_buf = "ERR_ALREADYREGISTRED\r\n";
-		else if (cmpnts.size() != cmpnt_index + 2)
+		else if (cmpnts.size() < cmpnt_index + 2)
 			client.out_buf = "ERR_NEEDMOREPARAMS\r\n";
 		else if (cmpnts[cmpnt_index]._type != CMD || cmpnts[cmpnt_index + 1]._type != MIDDLE)
 			client.out_buf = "ERR_INVALID_COMMAND\r\n";

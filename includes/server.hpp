@@ -26,9 +26,11 @@ class server
     int socket_file;
     static volatile sig_atomic_t running;
     void handle_client_line(Clients &cl, const std::string &line);
-    void handle_commands();
+    void handle_commands(size_t client_index);
     void cl_registration(Clients &client, const std::string &cmd);
+    void cl_ping(Clients &client);
     bool send_msg(Clients &client);
+    void flush_out_buffers();
     bool nickname_coll(const std::string &nickname) const;
     bool valid_nick(const std::string &nick) const;
     bool valid_username(const std::string &username) const;
