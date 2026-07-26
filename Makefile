@@ -8,16 +8,13 @@ SRCS = \
 	src/main.cpp \
 	src/server.cpp \
 	src/server_runtime.cpp \
+	src/commands_tools/server_buffer.cpp \
+	src/commands_tools/server_commands.cpp \
+	src/commands_tools/server_registration.cpp \
 	src/client.cpp \
 	src/channel.cpp \
-	src/tools.cpp \
-	src/commands/auth.cpp \
-	src/commands/invite.cpp \
-	src/commands/join.cpp \
-	src/commands/kick.cpp \
-	src/commands/mode.cpp \
-	src/commands/privmsg.cpp \
-	src/commands/topic.cpp
+	src/tools.cpp
+
 
 OBJS = $(SRCS:.cpp=.o)
 

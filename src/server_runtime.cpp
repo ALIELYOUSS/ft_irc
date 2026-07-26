@@ -110,8 +110,7 @@ void server::accept_client()
 
 	this->fds.push_back(make_pollfd(client_sock));
 
-	Clients newClient;
-	newClient.setValues(client_sock);
+	Clients newClient(client_sock);
 	this->client.push_back(newClient);
 }
 
@@ -175,15 +174,7 @@ void server::handle_client_event(size_t index)
 		remove_client(index);
 		return;
 	}
-
-	std::string line;
-	int lineCount = 0;
-	while (this->client[index - 1].popLine(line))
-	{
-		lineCount++;
-		std::cout << "[LINE] fd=" << fd << " extracted line #" << lineCount << std::endl;
-		this->handle_client_line(this->client[index - 1], line);
-	}
+	process_client_buffers();
 }
 
 void server::run_event_loop()

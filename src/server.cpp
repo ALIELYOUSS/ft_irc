@@ -4,7 +4,7 @@ void server::handle_client_line(Clients &cl, const std::string &line)
 {
 	if (line.empty())
 		return;
-	std::cout << "[CLIENT fd" << cl.getFd() << "] " << line << std::endl;
+	cl.tokenizeMessage(line);
 }
 
 server::server(std::string port, std::string passwd)

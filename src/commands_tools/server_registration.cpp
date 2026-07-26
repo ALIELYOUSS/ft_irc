@@ -1,0 +1,98 @@
+#include "../../includes/server.hpp"
+
+#include <cctype>
+
+static bool isMiddleType(const t_cmpnts &component)
+{
+	return component._type == MIDDLE;
+}
+
+bool server::valid_nick(const std::string &nick) const
+{
+	if (nick.empty())
+		return false;
+	if (!(std::isalpha(static_cast<unsigned char>(nick[0])) || nick[0] == '[' || nick[0] == ']' || nick[0] == '\\' || nick[0] == '`' || nick[0] == '_' || nick[0] == '^' || nick[0] == '{' || nick[0] == '|'))
+		return false;
+	for (size_t i = 1; i < nick.size(); ++i)
+	{
+		if (!(std::isalnum(static_cast<unsigned char>(nick[i])) || nick[i] == '-' || nick[i] == '_' || nick[i] == '[' || nick[i] == ']' || nick[i] == '\\' || nick[i] == '`' || nick[i] == '^' || nick[i] == '{' || nick[i] == '|' ))
+			return false;
+	}
+	return true;
+}
+
+bool server::valid_username(const std::string &username) const
+{
+	if (username.empty())
+		return false;
+	for (size_t i = 0; i < username.size(); ++i)
+	{
+		if (username[i] == ' ' || username[i] == ':' || username[i] == '\r' || username[i] == '\n' || username[i] == '\0')
+			return false;
+	}
+	return true;
+}
+
+bool server::nickname_coll(const std::string &nickname) const
+{
+	for (size_t i = 0; i < this->client.size(); ++i)
+	{
+		if (this->client[i].nickname == nickname)
+			return true;
+	}
+	return false;
+}
+
+void server::cl_registration(Clients &client, const std::string &cmd)
+{
+	const std::vector<t_cmpnts> &cmpnts = client.getComponents();
+	size_t cmpnt_index = 0;
+
+	client.out_buf = "";
+	if (!cmpnts.empty() && cmpnts[0]._type == PREFIX)
+		cmpnt_index = 1;
+	if (cmpnt_index >= cmpnts.size() || cmpnts[cmpnt_index]._type != CMD || cmpnts[cmpnt_index]._data != cmd)
+		return;
+	if (cmd == "PASS")
+	{
+		if (client.password.size())
+			client.out_buf = "ERR_ALREADYREGISTRED\r\n";
+		else if (cmpnts.size() < cmpnt_index + 2)
+			client.out_buf = "ERR_NEEDMOREPARAMS\r\n";
+		else if (client.nickname.empty() && client.username.empty())
+			client.out_buf = "NICK/USER first\r\n";
+		else if (!isMiddleType(cmpnts[cmpnt_index + 1]))
+			client.out_buf = "ERR_INVALID_COMMAND\r\n";
+		else
+			client.password = cmpnts[cmpnt_index + 1]._data;
+	}
+	else if (cmd == "NICK")
+	{
+		if (cmpnts.size() < cmpnt_index + 2 || cmpnts[cmpnt_index + 1]._type != MIDDLE)
+			client.out_buf = "ERR_NONICKNAMEGIVEN\r\n";
+		else if (!valid_nick(cmpnts[cmpnt_index + 1]._data))
+			client.out_buf = "ERR_INVALIDNICK\r\n";
+		else if (nickname_coll(cmpnts[cmpnt_index + 1]._data) && client.nickname != cmpnts[cmpnt_index + 1]._data)
+			client.out_buf = "ERR_NICKNAMEINUSE\r\n";
+		else
+			client.nickname = cmpnts[cmpnt_index + 1]._data;
+	}
+	else if (cmd == "USER")
+	{
+		if (client.registred)
+			client.out_buf = "ERR_ALREADYREGISTRED\r\n";
+		else if (cmpnts.size() != cmpnt_index + 2)
+			client.out_buf = "ERR_NEEDMOREPARAMS\r\n";
+		else if (cmpnts[cmpnt_index]._type != CMD || cmpnts[cmpnt_index + 1]._type != MIDDLE)
+			client.out_buf = "ERR_INVALID_COMMAND\r\n";
+		else if (!valid_username(cmpnts[cmpnt_index + 1]._data))
+			client.out_buf = "ERR_INVALIDUSER\r\n";
+		else
+			client.username = cmpnts[cmpnt_index + 1]._data;
+	}
+	if (client.out_buf.empty() && !client.registred && !client.nickname.empty() && !client.password.empty() && !client.username.empty())
+	{
+		client.out_buf = "RPL_WELCOME\r\n";
+		client.registred = true;
+	}
+}
