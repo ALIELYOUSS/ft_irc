@@ -1,17 +1,5 @@
 #include "../../includes/server.hpp"
 
-bool server::send_msg(Clients &client)
-{
-	while (!client.out_buf.empty())
-	{
-		ssize_t sent = send(client.getFd(), client.out_buf.c_str(), client.out_buf.size(), 0);
-		if (sent < 0)
-			return false;
-		client.out_buf.erase(0, static_cast<size_t>(sent));
-	}
-	return true;
-}
-
 void server::handle_commands(size_t client_index)
 {
 	if (client_index >= this->client.size())
@@ -31,7 +19,9 @@ void server::handle_commands(size_t client_index)
 	}
 	if (cmpnts[cmpnt_index]._data == "PASS" || cmpnts[cmpnt_index]._data == "NICK" || cmpnts[cmpnt_index]._data == "USER")
 		cl_registration(cl, cmpnts[cmpnt_index]._data);
-	if (cmpnts[cmpnt_index]._data == "PING")
+	else if (cmpnts[cmpnt_index]._data == "PING")
 		cl_ping(cl);
+	else if (cmpnts[cmpnt_index]._data == "JOIN")
+		cl_join(cl);
 	cl.clearComponents();
 }

@@ -29,6 +29,7 @@ class server
     void handle_commands(size_t client_index);
     void cl_registration(Clients &client, const std::string &cmd);
     void cl_ping(Clients &client);
+    void cl_join(Clients &client);
     bool send_msg(Clients &client);
     void flush_out_buffers();
     bool nickname_coll(const std::string &nickname) const;
@@ -54,9 +55,5 @@ public:
 
 int parsePort(const std::string &port);
 bool passwordHasNoWhitespace(const std::string &passwd);
-
-
-
-
 
 #endif
