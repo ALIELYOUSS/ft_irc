@@ -1,6 +1,6 @@
 NAME = ircserv
 
-CXX = g++
+CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 INCLUDES = -Iincludes
 
@@ -14,6 +14,7 @@ SRCS = \
 	src/commands/server_ping.cpp \
 	src/commands/server_registration.cpp \
 	src/commands/server_join.cpp \
+	src/commands/server_part.cpp \
 	src/client.cpp \
 	src/channel.cpp \
 	src/tools.cpp

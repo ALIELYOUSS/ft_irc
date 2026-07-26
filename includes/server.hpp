@@ -18,6 +18,8 @@
 #include<sys/types.h>
 #include <stdlib.h>
 
+std::vector<std::string> splitByComma(const std::string &s);
+
 class server
 {
     private:
@@ -30,6 +32,7 @@ class server
     void cl_registration(Clients &client, const std::string &cmd);
     void cl_ping(Clients &client);
     void cl_join(Clients &client);
+    void cl_part(Clients &client);
     bool send_msg(Clients &client);
     void flush_out_buffers();
     bool nickname_coll(const std::string &nickname) const;

@@ -23,5 +23,7 @@ void server::handle_commands(size_t client_index)
 		cl_ping(cl);
 	else if (cmpnts[cmpnt_index]._data == "JOIN")
 		cl_join(cl);
+	else if (cmpnts[cmpnt_index]._data == "PART")
+		cl_part(cl);
 	cl.clearComponents();
 }
