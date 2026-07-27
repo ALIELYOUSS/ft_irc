@@ -4,7 +4,7 @@ void server::cl_part(Clients &client)
 {
 	if (!client.registred)
 	{
-		client.out_buf += "ERR_NOTREGISTERED\r\n";
+		client.out_buf += ":server 451 " + client.nickname + " PART :You have not registered\r\n";
 		return;
 	}
 
@@ -15,7 +15,7 @@ void server::cl_part(Clients &client)
 		cmpnt_index = 1;
 	if (cmpnts.size() < cmpnt_index + 2 || cmpnts[cmpnt_index + 1]._type != MIDDLE)
 	{
-		client.out_buf += "ERR_NEEDMOREPARAMS\r\n";
+		client.out_buf += ":server 461 " + client.nickname + " PART :Not enough parameters\r\n";
 		return;
 	}
 	std::vector<std::string> channels = splitByComma(cmpnts[cmpnt_index + 1]._data);
@@ -25,13 +25,13 @@ void server::cl_part(Clients &client)
 		std::map<std::string, Channel>::iterator it = this->channels.find(chanName);
 		if (it == this->channels.end())
 		{
-			client.out_buf += "ERR_NOSUCHCHANNEL\r\n";
+			client.out_buf += ":server 403 " + client.nickname + " " + chanName + " :No such channel\r\n";
 			continue;
 		}
 		Channel &channel = it->second;
 		if (!channel.isMember(client.getFd()))
 		{
-			client.out_buf += "ERR_NOTONCHANNEL\r\n";
+			client.out_buf += ":server 442 " + client.nickname + " " + chanName + " :You're not on that channel\r\n";
 			continue;
 		}
 		std::string partMsg = ":" + client.nickname + "!" + client.username + "@localhost PART " + chanName + "\r\n";
@@ -54,4 +54,3 @@ void server::cl_part(Clients &client)
 			this->channels.erase(it);
 	}
 }
-

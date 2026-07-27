@@ -47,6 +47,10 @@ public:
     void cl_join(Clients &client);
     void cl_part(Clients &client);
     void cl_privmsg(Clients &client);
+    void cl_topic(Clients &client);
+    void cl_kick(Clients &client);
+    void cl_invite(Clients &client);
+    void cl_mode(Clients &client);
     bool send_msg(Clients &client);
     void flush_out_buffers();
     bool nickname_coll(const std::string &nickname) const;

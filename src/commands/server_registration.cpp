@@ -56,41 +56,41 @@ void server::cl_registration(Clients &client, const std::string &cmd)
 	if (cmd == "PASS")
 	{
 		if (client.password.size())
-			client.out_buf = "ERR_ALREADYREGISTRED\r\n";
+			client.out_buf = ":server 462 " + client.nickname + " :You may not reregister\r\n";
 		else if (cmpnts.size() < cmpnt_index + 2)
-			client.out_buf = "ERR_NEEDMOREPARAMS\r\n";
+			client.out_buf = ":server 461 " + client.nickname + " PASS :Not enough parameters\r\n";
 		else if (!isMiddleType(cmpnts[cmpnt_index + 1]))
-			client.out_buf = "ERR_INVALID_COMMAND\r\n";
+			client.out_buf = ":server 461 " + client.nickname + " PASS :Not enough parameters\r\n";
 		else
 			client.password = cmpnts[cmpnt_index + 1]._data;
 	}
 	else if (cmd == "NICK")
 	{
 		if (cmpnts.size() < cmpnt_index + 2 || cmpnts[cmpnt_index + 1]._type != MIDDLE)
-			client.out_buf = "ERR_NONICKNAMEGIVEN\r\n";
+			client.out_buf = ":server 431 " + client.nickname + " :No nickname given\r\n";
 		else if (!valid_nick(cmpnts[cmpnt_index + 1]._data))
-			client.out_buf = "ERR_INVALIDNICK\r\n";
+			client.out_buf = ":server 432 " + client.nickname + " " + cmpnts[cmpnt_index + 1]._data + " :Erroneous nickname\r\n";
 		else if (nickname_coll(cmpnts[cmpnt_index + 1]._data) && client.nickname != cmpnts[cmpnt_index + 1]._data)
-			client.out_buf = "ERR_NICKNAMEINUSE\r\n";
+			client.out_buf = ":server 433 " + client.nickname + " " + cmpnts[cmpnt_index + 1]._data + " :Nickname is already in use\r\n";
 		else
 			client.nickname = cmpnts[cmpnt_index + 1]._data;
 	}
 	else if (cmd == "USER")
 	{
 		if (client.registred)
-			client.out_buf = "ERR_ALREADYREGISTRED\r\n";
+			client.out_buf = ":server 462 " + client.nickname + " :You may not reregister\r\n";
 		else if (cmpnts.size() < cmpnt_index + 2)
-			client.out_buf = "ERR_NEEDMOREPARAMS\r\n";
+			client.out_buf = ":server 461 " + client.nickname + " USER :Not enough parameters\r\n";
 		else if (cmpnts[cmpnt_index]._type != CMD || cmpnts[cmpnt_index + 1]._type != MIDDLE)
-			client.out_buf = "ERR_INVALID_COMMAND\r\n";
+			client.out_buf = ":server 461 " + client.nickname + " USER :Not enough parameters\r\n";
 		else if (!valid_username(cmpnts[cmpnt_index + 1]._data))
-			client.out_buf = "ERR_INVALIDUSER\r\n";
+			client.out_buf = ":server 468 " + client.nickname + " :Invalid username\r\n";
 		else
 			client.username = cmpnts[cmpnt_index + 1]._data;
 	}
 	if (client.out_buf.empty() && !client.registred && !client.nickname.empty() && !client.password.empty() && !client.username.empty())
 	{
-		client.out_buf = "RPL_WELCOME\r\n";
+		client.out_buf = ":server 001 " + client.nickname + " :Welcome to the Internet Relay Network " + client.nickname + "!" + client.username + "@localhost\r\n";
 		client.registred = true;
 	}
 }
