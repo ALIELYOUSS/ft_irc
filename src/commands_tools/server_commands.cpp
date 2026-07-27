@@ -27,5 +27,15 @@ void server::handle_commands(size_t client_index)
 		cl_part(cl);
 	else if (cmpnts[cmpnt_index]._data == "PRIVMSG")
 		cl_privmsg(cl);
+	else if (cmpnts[cmpnt_index]._data == "TOPIC")
+		cl_topic(cl);
+	else if (cmpnts[cmpnt_index]._data == "KICK")
+		cl_kick(cl);
+	else if (cmpnts[cmpnt_index]._data == "INVITE")
+		cl_invite(cl);
+	else if (cmpnts[cmpnt_index]._data == "MODE")
+		cl_mode(cl);
+	else
+		cl.out_buf += ":server 421 " + cl.nickname + " " + cmpnts[cmpnt_index]._data + " :Unknown command\r\n";
 	cl.clearComponents();
 }

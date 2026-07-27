@@ -4,7 +4,7 @@ void server::cl_privmsg(Clients &client)
 {
 	if (!client.registred)
 	{
-		client.out_buf += "ERR_NOTREGISTERED\r\n";
+		client.out_buf += ":server 451 " + client.nickname + " PRIVMSG :You have not registered\r\n";
 		return;
 	}
 
@@ -16,19 +16,19 @@ void server::cl_privmsg(Clients &client)
 
 	if (cmpnts.size() < cmpnt_index + 2)
 	{
-		client.out_buf += "ERR_NORECIPIENT\r\n";
+		client.out_buf += ":server 411 " + client.nickname + " :No recipient given (PRIVMSG)\r\n";
 		return;
 	}
 
 	if (cmpnts[cmpnt_index + 1]._type != MIDDLE)
 	{
-		client.out_buf += "ERR_NORECIPIENT\r\n";
+		client.out_buf += ":server 411 " + client.nickname + " :No recipient given (PRIVMSG)\r\n";
 		return;
 	}
 
 	if (cmpnts.size() < cmpnt_index + 3)
 	{
-		client.out_buf += "ERR_NOTEXTTOSEND\r\n";
+		client.out_buf += ":server 412 " + client.nickname + " :No text to send\r\n";
 		return;
 	}
 
@@ -40,12 +40,12 @@ void server::cl_privmsg(Clients &client)
 		text = cmpnts[last_idx]._data;
 	else
 	{
-		client.out_buf += "ERR_NOTEXTTOSEND\r\n";
+		client.out_buf += ":server 412 " + client.nickname + " :No text to send\r\n";
 		return;
 	}
 	if (text.empty())
 	{
-		client.out_buf += "ERR_NOTEXTTOSEND\r\n";
+		client.out_buf += ":server 412 " + client.nickname + " :No text to send\r\n";
 		return;
 	}
 
@@ -62,13 +62,13 @@ void server::cl_privmsg(Clients &client)
 			std::map<std::string, Channel>::iterator it = this->channels.find(target);
 			if (it == this->channels.end())
 			{
-				client.out_buf += "ERR_CANNOTSENDTOCHAN\r\n";
+				client.out_buf += ":server 404 " + client.nickname + " " + target + " :Cannot send to channel\r\n";
 				continue;
 			}
 			Channel &channel = it->second;
 			if (!channel.isMember(client.getFd()))
 			{
-				client.out_buf += "ERR_CANNOTSENDTOCHAN\r\n";
+				client.out_buf += ":server 404 " + client.nickname + " " + target + " :Cannot send to channel\r\n";
 				continue;
 			}
 			std::string msg = ":" + client.nickname + "!" + client.username + "@localhost PRIVMSG " + target + " :" + text + "\r\n";
@@ -102,8 +102,7 @@ void server::cl_privmsg(Clients &client)
 				}
 			}
 			if (!found)
-				client.out_buf += "ERR_NOSUCHNICK\r\n";
+				client.out_buf += ":server 401 " + client.nickname + " " + target + " :No such nick/channel\r\n";
 		}
 	}
 }
-

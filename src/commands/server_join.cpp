@@ -6,7 +6,7 @@ void server::cl_join(Clients &client)
 {
 	if (!client.registred)
 	{
-		client.out_buf += "ERR_NOTREGISTERED\r\n";
+		client.out_buf += ":server 451 " + client.nickname + " JOIN :You have not registered\r\n";
 		return;
 	}
 
@@ -18,13 +18,13 @@ void server::cl_join(Clients &client)
 
 	if (cmpnts.size() < cmpnt_index + 2)
 	{
-		client.out_buf += "ERR_NEEDMOREPARAMS\r\n";
+		client.out_buf += ":server 461 " + client.nickname + " JOIN :Not enough parameters\r\n";
 		return;
 	}
 
 	if (cmpnts[cmpnt_index + 1]._type != MIDDLE)
 	{
-		client.out_buf += "ERR_NEEDMOREPARAMS\r\n";
+		client.out_buf += ":server 461 " + client.nickname + " JOIN :Not enough parameters\r\n";
 		return;
 	}
 
@@ -41,7 +41,7 @@ void server::cl_join(Clients &client)
 			key = keys[i];
 		if (chanName.empty() || chanName[0] != '#')
 		{
-			client.out_buf += "ERR_BADCHANMASK\r\n";
+			client.out_buf += ":server 476 " + client.nickname + " " + chanName + " :Bad Channel Mask\r\n";
 			continue;
 		}
 		if (this->channels.find(chanName) == this->channels.end())
@@ -52,13 +52,13 @@ void server::cl_join(Clients &client)
 			if (channel.isMember(client.getFd()))
 				continue;
 			else if (channel.isInviteOnly())
-				client.out_buf += "ERR_INVITEONLYCHAN\r\n";
+				client.out_buf += ":server 473 " + client.nickname + " " + chanName + " :Cannot join channel (+i)\r\n";
 			else if (!channel.getKey().empty() && channel.getKey() != key)
-				client.out_buf += "ERR_BADCHANNELKEY\r\n";
+				client.out_buf += ":server 475 " + client.nickname + " " + chanName + " :Cannot join channel (+k)\r\n";
 			else if (channel.getLimit() != 0 && channel.memberCount() >= channel.getLimit())
-				client.out_buf += "ERR_CHANNELISFULL\r\n";
+				client.out_buf += ":server 471 " + client.nickname + " " + chanName + " :Cannot join channel (+l)\r\n";
 			else
-				client.out_buf += "ERR_BADCHANMASK\r\n";
+				client.out_buf += ":server 476 " + client.nickname + " " + chanName + " :Bad Channel Mask\r\n";
 			continue;
 		}
 
