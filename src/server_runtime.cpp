@@ -119,6 +119,25 @@ void server::remove_client(size_t index)
 	int fd = this->fds[index].fd;
 	std::cout << "[DISCONNECT] Client fd=" << fd 
 		<< " disconnected (total clients: " << (this->client.size() - 1) << ")" << std::endl;
+
+	// Remove client from all channels they are a member of
+	{
+		std::map<std::string, Channel>::iterator it = this->channels.begin();
+		while (it != this->channels.end())
+		{
+			Channel &channel = it->second;
+			if (channel.isMember(fd))
+			{
+				channel.removeMember(fd);
+				channel.removeOperator(fd);
+			}
+			if (channel.memberCount() == 0)
+				this->channels.erase(it++);
+			else
+				++it;
+		}
+	}
+
 	close(this->fds[index].fd);
 	this->fds.erase(this->fds.begin() + index);
 	this->client.erase(this->client.begin() + (index - 1));

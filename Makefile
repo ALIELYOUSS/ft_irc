@@ -15,6 +15,7 @@ SRCS = \
 	src/commands/server_registration.cpp \
 	src/commands/server_join.cpp \
 	src/commands/server_part.cpp \
+	src/commands/server_privmsg.cpp \
 	src/client.cpp \
 	src/channel.cpp \
 	src/tools.cpp

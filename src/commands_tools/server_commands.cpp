@@ -25,5 +25,7 @@ void server::handle_commands(size_t client_index)
 		cl_join(cl);
 	else if (cmpnts[cmpnt_index]._data == "PART")
 		cl_part(cl);
+	else if (cmpnts[cmpnt_index]._data == "PRIVMSG")
+		cl_privmsg(cl);
 	cl.clearComponents();
 }

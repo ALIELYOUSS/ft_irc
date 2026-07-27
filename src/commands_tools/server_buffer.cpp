@@ -9,7 +9,11 @@ void server::process_client_buffers()
 		{
 			this->handle_client_line(this->client[i], line);
 			this->handle_commands(i);
+			if (i >= this->client.size())
+				break;
 			this->flush_out_buffers();
+			if (i >= this->client.size())
+				break;
 		}
 	}
 }
