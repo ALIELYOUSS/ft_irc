@@ -1,6 +1,6 @@
 NAME = ircserv
 
-CXX = g++
+CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 INCLUDES = -Iincludes
 
@@ -8,16 +8,18 @@ SRCS = \
 	src/main.cpp \
 	src/server.cpp \
 	src/server_runtime.cpp \
+	src/commands_tools/server_buffer.cpp \
+	src/commands_tools/server_commands.cpp \
+	src/commands_tools/server_send.cpp \
+	src/commands/server_ping.cpp \
+	src/commands/server_registration.cpp \
+	src/commands/server_join.cpp \
+	src/commands/server_part.cpp \
+	src/commands/server_privmsg.cpp \
 	src/client.cpp \
 	src/channel.cpp \
-	src/tools.cpp \
-	src/commands/auth.cpp \
-	src/commands/invite.cpp \
-	src/commands/join.cpp \
-	src/commands/kick.cpp \
-	src/commands/mode.cpp \
-	src/commands/privmsg.cpp \
-	src/commands/topic.cpp
+	src/tools.cpp
+
 
 OBJS = $(SRCS:.cpp=.o)
 

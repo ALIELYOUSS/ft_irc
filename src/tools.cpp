@@ -1,5 +1,25 @@
 #include "../includes/server.hpp"
 
+std::vector<std::string> splitByComma(const std::string &s)
+{
+	std::vector<std::string> result;
+	std::string current;
+	for (size_t i = 0; i < s.size(); ++i)
+	{
+		if (s[i] == ',')
+		{
+			if (!current.empty())
+				result.push_back(current);
+			current.clear();
+		}
+		else
+			current += s[i];
+	}
+	if (!current.empty())
+		result.push_back(current);
+	return result;
+}
+
 namespace
 {
 	bool hasOnlyDigits(const std::string &s)

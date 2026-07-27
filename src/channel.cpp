@@ -78,6 +78,11 @@ bool Channel::isInvited(int clientFd) const{
 	return this->invited.find(clientFd) != this->invited.end();
 }
 
+const std::set<int> &Channel::getMembers() const
+{
+	return this->members;
+}
+
 size_t Channel::memberCount() const{
 	return this->members.size();
 }

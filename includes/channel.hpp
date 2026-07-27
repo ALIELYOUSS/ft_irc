@@ -40,9 +40,10 @@ public:
     bool isTopicRestricted() const;
     void setTopicRestricted(bool enabled);
 
-    bool isMember(int clientFd) const;
+bool isMember(int clientFd) const;
     bool isOperator(int clientFd) const;
     bool isInvited(int clientFd) const;
+    const std::set<int> &getMembers() const;
 
     size_t memberCount() const;
     bool empty() const;

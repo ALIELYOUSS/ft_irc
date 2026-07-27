@@ -110,8 +110,7 @@ void server::accept_client()
 
 	this->fds.push_back(make_pollfd(client_sock));
 
-	Clients newClient;
-	newClient.setValues(client_sock);
+	Clients newClient(client_sock);
 	this->client.push_back(newClient);
 }
 
@@ -120,6 +119,25 @@ void server::remove_client(size_t index)
 	int fd = this->fds[index].fd;
 	std::cout << "[DISCONNECT] Client fd=" << fd 
 		<< " disconnected (total clients: " << (this->client.size() - 1) << ")" << std::endl;
+
+	// Remove client from all channels they are a member of
+	{
+		std::map<std::string, Channel>::iterator it = this->channels.begin();
+		while (it != this->channels.end())
+		{
+			Channel &channel = it->second;
+			if (channel.isMember(fd))
+			{
+				channel.removeMember(fd);
+				channel.removeOperator(fd);
+			}
+			if (channel.memberCount() == 0)
+				this->channels.erase(it++);
+			else
+				++it;
+		}
+	}
+
 	close(this->fds[index].fd);
 	this->fds.erase(this->fds.begin() + index);
 	this->client.erase(this->client.begin() + (index - 1));
@@ -175,15 +193,7 @@ void server::handle_client_event(size_t index)
 		remove_client(index);
 		return;
 	}
-
-	std::string line;
-	int lineCount = 0;
-	while (this->client[index - 1].popLine(line))
-	{
-		lineCount++;
-		std::cout << "[LINE] fd=" << fd << " extracted line #" << lineCount << std::endl;
-		this->handle_client_line(this->client[index - 1], line);
-	}
+	process_client_buffers();
 }
 
 void server::run_event_loop()
