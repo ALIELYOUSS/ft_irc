@@ -37,18 +37,15 @@ void server::cl_topic(Clients &client)
 		return;
 	}
 
-	// Check if a <topic> parameter was provided (TRAILING or MIDDLE after channel)
 	bool hasTopic = false;
 	std::string newTopic;
 
-	// Look for TRAILING component (prefixed with ':')
 	size_t last_idx = cmpnts.size() - 1;
 	if (last_idx > cmpnt_index + 1 && cmpnts[last_idx]._type == TRAILING)
 	{
 		hasTopic = true;
 		newTopic = cmpnts[last_idx]._data;
 	}
-	// Or check if the next component after channel is MIDDLE (unlikely for topic with spaces, but handle it)
 	else if (cmpnts.size() >= cmpnt_index + 3 && cmpnts[cmpnt_index + 2]._type == MIDDLE)
 	{
 		hasTopic = true;
@@ -57,7 +54,6 @@ void server::cl_topic(Clients &client)
 
 	if (!hasTopic)
 	{
-		// View topic mode
 		if (channel.getTopic().empty())
 			client.out_buf += ":server 331 " + client.nickname + " " + chanName + " :No topic is set\r\n";
 		else
@@ -65,7 +61,6 @@ void server::cl_topic(Clients &client)
 		return;
 	}
 
-	// Set topic mode - check if topic is restricted and client is operator
 	if (channel.isTopicRestricted() && !channel.isOperator(client.getFd()))
 	{
 		client.out_buf += ":server 482 " + client.nickname + " " + chanName + " :You're not channel operator\r\n";
@@ -74,7 +69,6 @@ void server::cl_topic(Clients &client)
 
 	channel.setTopic(newTopic);
 
-	// Broadcast topic change to all channel members
 	std::string topicMsg = ":" + client.nickname + "!" + client.username + "@localhost TOPIC " + chanName + " :" + newTopic + "\r\n";
 	const std::set<int> &members = channel.getMembers();
 	for (std::set<int>::iterator it2 = members.begin(); it2 != members.end(); ++it2)

@@ -66,5 +66,5 @@ public:
 
 int parsePort(const std::string &port);
 bool passwordHasNoWhitespace(const std::string &passwd);
-
+std::string tolow(const std::string& str);
 #endif

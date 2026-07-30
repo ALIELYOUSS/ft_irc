@@ -31,6 +31,7 @@ public:
     std::string password;
     std::string out_buf;
     bool registred;
+    bool announced;
 
     Clients();
     explicit Clients(int fd);

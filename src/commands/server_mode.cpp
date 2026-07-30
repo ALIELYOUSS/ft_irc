@@ -26,13 +26,11 @@ void server::cl_mode(Clients &client)
 	if (!cmpnts.empty() && cmpnts[0]._type == PREFIX)
 		cmpnt_index = 1;
 
-	// Need at least MODE <channel>
 	if (cmpnts.size() < cmpnt_index + 2 || cmpnts[cmpnt_index + 1]._type != MIDDLE)
 	{
 		client.out_buf += ":server 461 " + client.nickname + " MODE :Not enough parameters\r\n";
 		return;
 	}
-
 	std::string chanName = cmpnts[cmpnt_index + 1]._data;
 	std::map<std::string, Channel>::iterator it = this->channels.find(chanName);
 
@@ -41,13 +39,9 @@ void server::cl_mode(Clients &client)
 		client.out_buf += ":server 403 " + client.nickname + " " + chanName + " :No such channel\r\n";
 		return;
 	}
-
 	Channel &channel = it->second;
-
-	// If no mode string provided, just show current modes (MODE <channel>)
 	if (cmpnts.size() < cmpnt_index + 3)
 	{
-		// Return current channel modes: "MODE #channel +<modes> <params>"
 		std::string modeStr = "+";
 		std::string modeParams;
 
@@ -72,27 +66,20 @@ void server::cl_mode(Clients &client)
 		client.out_buf += ":server 329 " + client.nickname + " " + chanName + " :Channel created\r\n";
 		return;
 	}
-
-	// Need to be on the channel to change modes
 	if (!channel.isMember(client.getFd()))
 	{
 		client.out_buf += ":server 442 " + client.nickname + " " + chanName + " :You're not on that channel\r\n";
 		return;
 	}
-
-	// Need to be operator to change channel modes
 	if (!channel.isOperator(client.getFd()))
 	{
 		client.out_buf += ":server 482 " + client.nickname + " " + chanName + " :You're not channel operator\r\n";
 		return;
 	}
-
-	// Parse mode string from the next component
 	std::string modeStr = cmpnts[cmpnt_index + 2]._data;
 	if (modeStr.empty())
 		return;
 
-	// Collect extra arguments for modes that take params (k, l, o)
 	std::vector<std::string> modeArgs;
 	for (size_t i = cmpnt_index + 3; i < cmpnts.size(); ++i)
 	{
@@ -102,7 +89,6 @@ void server::cl_mode(Clients &client)
 	}
 	size_t argIdx = 0;
 
-	// Track changes for broadcasting
 	std::string changeMsg;
 	std::vector<std::string> changeParams;
 
@@ -121,16 +107,12 @@ void server::cl_mode(Clients &client)
 			currentSign = '-';
 			continue;
 		}
-
-		// Skip modes we don't handle
 		if (c != 'i' && c != 't' && c != 'k' && c != 'o' && c != 'l')
 		{
 			client.out_buf += ":server 472 " + client.nickname + " " + c + " :is unknown mode char to me\r\n";
 			continue;
 		}
-
 		bool adding = (currentSign == '+');
-
 		switch (c)
 		{
 		case 'i':
@@ -264,7 +246,6 @@ void server::cl_mode(Clients &client)
 	if (changeMsg.empty())
 		return;
 
-	// Rebuild mode broadcast string with proper sign tracking
 	std::string broadcastMode = "";
 	currentSign = '\0';
 	for (size_t i = 0; i < modeStr.size(); ++i)
@@ -283,8 +264,6 @@ void server::cl_mode(Clients &client)
 	}
 
 	std::string modeBroadcast = ":" + client.nickname + "!" + client.username + "@localhost MODE " + chanName + " " + broadcastMode + "\r\n";
-
-	// Broadcast to all channel members
 	const std::set<int> &members = channel.getMembers();
 	for (std::set<int>::iterator it2 = members.begin(); it2 != members.end(); ++it2)
 	{

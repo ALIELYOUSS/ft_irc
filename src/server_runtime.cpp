@@ -1,35 +1,12 @@
 #include "../includes/server.hpp"
 
 #include <cerrno>
-#include <iomanip>
 
 volatile sig_atomic_t server::running = 1;
 
-static void debug_print_bytes(const char *buf, size_t len)
-{
-	for (size_t i = 0; i < len && i < 100; ++i)
-	{
-		unsigned char c = buf[i];
-		if (c == '\r')
-			std::cout << "<CR>";
-		else if (c == '\n')
-			std::cout << "<LF>";
-		else if (c >= 32 && c < 127)
-			std::cout << c;
-		else
-			std::cout << "<" << std::setfill('0') << std::setw(2) << std::hex << (int)c << std::dec << std::setfill(' ') << ">";
-	}
-	std::cout << std::endl;
-}
-
 void server::handle_signal(int signum)
 {
-	if (signum == SIGINT)
-		std::cout << "\n[SIGNAL] Caught SIGINT (Ctrl+C)" << std::endl;
-	else if (signum == SIGTERM)
-		std::cout << "\n[SIGNAL] Caught SIGTERM" << std::endl;
-	else
-		std::cout << "\n[SIGNAL] Caught signal " << signum << std::endl;
+	(void)signum;
 	server::running = 0;
 }
 
@@ -56,7 +33,6 @@ void server::setup_listener()
 		std::cerr << "socket() failed" << std::endl;
 		throw std::runtime_error("socket_fd failed");
 	}
-	std::cout << "Created listener socket fd=" << socket_fd << std::endl;
 
 	int reuseAddr = 1;
 	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) == -1)
@@ -105,9 +81,6 @@ void server::accept_client()
 		throw std::runtime_error("client fd socket fail");
 	}
 
-	std::cout << "[ACCEPT] New client connected: fd=" << client_sock 
-		<< " (total clients: " << (this->client.size() + 1) << ")" << std::endl;
-
 	this->fds.push_back(make_pollfd(client_sock));
 
 	Clients newClient(client_sock);
@@ -117,10 +90,6 @@ void server::accept_client()
 void server::remove_client(size_t index)
 {
 	int fd = this->fds[index].fd;
-	std::cout << "[DISCONNECT] Client fd=" << fd 
-		<< " disconnected (total clients: " << (this->client.size() - 1) << ")" << std::endl;
-
-	// Remove client from all channels they are a member of
 	{
 		std::map<std::string, Channel>::iterator it = this->channels.begin();
 		while (it != this->channels.end())
@@ -149,19 +118,16 @@ void server::handle_client_event(size_t index)
 
 	if (this->fds[index].revents & POLLERR)
 	{
-		std::cout << "[POLL_ERROR] fd=" << fd << " got POLLERR" << std::endl;
 		remove_client(index);
 		return;
 	}
 	if (this->fds[index].revents & POLLHUP)
 	{
-		std::cout << "[POLL_ERROR] fd=" << fd << " got POLLHUP (client closed connection)" << std::endl;
 		remove_client(index);
 		return;
 	}
 	if (this->fds[index].revents & POLLNVAL)
 	{
-		std::cout << "[POLL_ERROR] fd=" << fd << " got POLLNVAL" << std::endl;
 		remove_client(index);
 		return;
 	}
@@ -179,17 +145,11 @@ void server::handle_client_event(size_t index)
 	}
 	if (bytes == 0)
 	{
-		std::cout << "[RECV] fd=" << fd << " sent EOF (connection closed)" << std::endl;
 		remove_client(index);
 		return;
 	}
-
-	std::cout << "[RECV] fd=" << fd << " received " << bytes << " bytes" << std::endl;
-	debug_print_bytes(buf, bytes);
-
 	if (!this->client[index - 1].appendMsg(std::string(buf, bytes), bytes))
 	{
-		std::cout << "[BUFFER_FULL] fd=" << fd << " buffer overflow, disconnecting" << std::endl;
 		remove_client(index);
 		return;
 	}
@@ -204,34 +164,18 @@ void server::run_event_loop()
 		if (ready < 0)
 		{
 			if (!server::running && errno == EINTR)
-			{
-				std::cout << "[LOOP] poll() interrupted after shutdown signal" << std::endl;
 				break;
-			}
 			if (errno == EINTR)
-			{
-				std::cout << "[LOOP] poll() interrupted, retrying" << std::endl;
 				continue;
-			}
 			std::cerr << "poll() failed" << std::endl;
 			throw std::runtime_error("poll failed\n");
 		}
-		if (ready == 0)
-		{
-			std::cout << "[LOOP] poll() timeout (shouldn't happen with -1 timeout)" << std::endl;
-			continue;
-		}
 
 		if (this->fds[0].revents & POLLIN)
-		{
-			std::cout << "[LOOP] Listener fd ready, accepting connection..." << std::endl;
 			accept_client();
-		}
 
 		for (size_t i = 1; i < this->fds.size();)
 		{
-			if (this->fds[i].revents)
-				std::cout << "[LOOP] Client fd=" << this->fds[i].fd << " has events" << std::endl;
 			size_t currentSize = this->fds.size();
 			handle_client_event(i);
 			if (this->fds.size() == currentSize)

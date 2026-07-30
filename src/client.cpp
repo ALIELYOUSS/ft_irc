@@ -32,11 +32,11 @@ static bool isTrailingComponent(const std::string &value)
     return true;
 }
 
-Clients::Clients() : client_fd(-1), buffer(""), components(), nickname(""), username(""), password(""), out_buf(""), registred(false)
+Clients::Clients() : client_fd(-1), buffer(""), components(), nickname(""), username(""), password(""), out_buf(""), registred(false), announced(false)
 {
 }
 
-Clients::Clients(int fd) : client_fd(fd), buffer(""), components(), nickname(""), username(""), password(""), out_buf(""), registred(false)
+Clients::Clients(int fd) : client_fd(fd), buffer(""), components(), nickname(""), username(""), password(""), out_buf(""), registred(false), announced(false)
 {
 }
 
@@ -79,6 +79,7 @@ void Clients::setValues(int fd){
     this->password = "";
     this->out_buf = "";
     this->registred = false;
+    this->announced = false;
 }
 
 void Clients::clearComponents()

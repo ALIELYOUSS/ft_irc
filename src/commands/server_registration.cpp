@@ -51,9 +51,9 @@ void server::cl_registration(Clients &client, const std::string &cmd)
 	client.out_buf = "";
 	if (!cmpnts.empty() && cmpnts[0]._type == PREFIX)
 		cmpnt_index = 1;
-	if (cmpnt_index >= cmpnts.size() || cmpnts[cmpnt_index]._type != CMD || cmpnts[cmpnt_index]._data != cmd)
+	if (cmpnt_index >= cmpnts.size() || cmpnts[cmpnt_index]._type != CMD || tolow(cmpnts[cmpnt_index]._data) != cmd)
 		return;
-	if (cmd == "PASS")
+	if (cmd == "pass")
 	{
 		if (client.password.size())
 			client.out_buf = ":server 462 " + client.nickname + " :You may not reregister\r\n";
@@ -64,7 +64,7 @@ void server::cl_registration(Clients &client, const std::string &cmd)
 		else
 			client.password = cmpnts[cmpnt_index + 1]._data;
 	}
-	else if (cmd == "NICK")
+	else if (cmd == "nick")
 	{
 		if (cmpnts.size() < cmpnt_index + 2 || cmpnts[cmpnt_index + 1]._type != MIDDLE)
 			client.out_buf = ":server 431 " + client.nickname + " :No nickname given\r\n";
@@ -75,7 +75,7 @@ void server::cl_registration(Clients &client, const std::string &cmd)
 		else
 			client.nickname = cmpnts[cmpnt_index + 1]._data;
 	}
-	else if (cmd == "USER")
+	else if (cmd == "user")
 	{
 		if (client.registred)
 			client.out_buf = ":server 462 " + client.nickname + " :You may not reregister\r\n";

@@ -2,7 +2,7 @@
 
 int main(int ac, char **av){
     if (ac != 3){
-        std::cout << "Bad arguments" << std::endl;
+        std::cerr << "Bad arguments" << std::endl;
         return EXIT_FAILURE;
     }
     try
