@@ -127,3 +127,5 @@ void server::cl_registration(Clients &client, const std::string &cmd)
 		client.registred = true;
 	}
 }
+
+
