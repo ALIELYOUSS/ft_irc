@@ -1,6 +1,5 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
-
 #include "channel.hpp"
 #include "clients.hpp"
 #include <unistd.h>
@@ -8,7 +7,7 @@
 #include <string.h>
 #include<iostream>
 #include<sstream>
-#include<vector> 
+#include<vector>
 #include<map>
 #include<poll.h>
 #include<sys/socket.h>
@@ -17,9 +16,8 @@
 #include<sys/poll.h>
 #include<sys/types.h>
 #include <stdlib.h>
-
 std::vector<std::string> splitByComma(const std::string &s);
-
+std::string tolow(const std::string &str);
 class server
 {
     private:
@@ -27,7 +25,6 @@ class server
     std::string passwd;
     int socket_file;
     static volatile sig_atomic_t running;
-
     void setup_listener();
     void install_signal_handlers();
     void run_event_loop();
@@ -37,7 +34,6 @@ class server
     static void handle_signal(int signum);
     static pollfd make_pollfd(int fd);
     void close_socks(std::vector<pollfd> &fds);
-
 public:
     void handle_client_line(Clients &cl, const std::string &line);
     void handle_commands(size_t client_index);
@@ -56,15 +52,12 @@ public:
     bool nickname_coll(const std::string &nickname) const;
     bool valid_nick(const std::string &nick) const;
     bool valid_username(const std::string &username) const;
-
     std::map<std::string, Channel> channels;
     std::vector<Clients> client;
     std::vector<pollfd> fds;
     server(std::string port, std::string passwd);
     int init();
 };
-
 int parsePort(const std::string &port);
 bool passwordHasNoWhitespace(const std::string &passwd);
-
 #endif

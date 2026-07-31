@@ -1,37 +1,30 @@
 #include "../../includes/server.hpp"
-
 void server::cl_privmsg(Clients &client)
 {
 	if (!client.registred)
 	{
-		client.out_buf += ":server 451 " + client.nickname + " PRIVMSG :You have not registered\r\n";
+		client.out_buf += ":server 451 " + client.nickname + " :You have not registered\r\n";
 		return;
 	}
-
 	const std::vector<t_cmpnts> &cmpnts = client.getComponents();
 	size_t cmpnt_index = 0;
-
 	if (!cmpnts.empty() && cmpnts[0]._type == PREFIX)
 		cmpnt_index = 1;
-
 	if (cmpnts.size() < cmpnt_index + 2)
 	{
 		client.out_buf += ":server 411 " + client.nickname + " :No recipient given (PRIVMSG)\r\n";
 		return;
 	}
-
 	if (cmpnts[cmpnt_index + 1]._type != MIDDLE)
 	{
 		client.out_buf += ":server 411 " + client.nickname + " :No recipient given (PRIVMSG)\r\n";
 		return;
 	}
-
 	if (cmpnts.size() < cmpnt_index + 3)
 	{
 		client.out_buf += ":server 412 " + client.nickname + " :No text to send\r\n";
 		return;
 	}
-
 	std::string text;
 	size_t last_idx = cmpnts.size() - 1;
 	if (cmpnts[last_idx]._type == TRAILING)
@@ -48,15 +41,12 @@ void server::cl_privmsg(Clients &client)
 		client.out_buf += ":server 412 " + client.nickname + " :No text to send\r\n";
 		return;
 	}
-
 	std::vector<std::string> targets = splitByComma(cmpnts[cmpnt_index + 1]._data);
-
 	for (size_t i = 0; i < targets.size(); ++i)
 	{
 		std::string target = targets[i];
 		if (target.empty())
 			continue;
-
 		if (target[0] == '#' || target[0] == '&')
 		{
 			std::map<std::string, Channel>::iterator it = this->channels.find(target);

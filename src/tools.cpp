@@ -1,4 +1,12 @@
 #include "../includes/server.hpp"
+#include <cctype>
+std::string tolow(const std::string &str)
+{
+	std::string tmp;
+	for (std::size_t i = 0; i < str.size(); i++)
+		tmp.push_back(std::tolower(str[i]));
+	return tmp;
+}
 
 std::vector<std::string> splitByComma(const std::string &s)
 {
@@ -35,12 +43,10 @@ namespace
 	}
 }
 
-
 int parsePort(const std::string &port)
 {
 	if (!hasOnlyDigits(port))
 		throw std::invalid_argument("Wrong Port\n");
-
 	long value = 0;
 	for (size_t i = 0; i < port.size(); ++i)
 	{
@@ -48,7 +54,6 @@ int parsePort(const std::string &port)
 		if (value > 65535)
 			throw std::invalid_argument("The Number is Above the Port limits\n");
 	}
-
 	if (value < 1024)
 		throw std::invalid_argument("Wrong Port\n");
 	return (int)(value);

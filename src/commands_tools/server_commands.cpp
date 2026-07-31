@@ -1,5 +1,4 @@
 #include "../../includes/server.hpp"
-
 void server::handle_commands(size_t client_index)
 {
 	if (client_index >= this->client.size())
@@ -7,7 +6,6 @@ void server::handle_commands(size_t client_index)
 	Clients &cl = this->client[client_index];
 	const std::vector<t_cmpnts> &cmpnts = cl.getComponents();
 	size_t cmpnt_index = 0;
-
 	if (cmpnts.empty())
 		return;
 	if (cmpnts[0]._type == PREFIX)
@@ -17,23 +15,24 @@ void server::handle_commands(size_t client_index)
 		cl.clearComponents();
 		return;
 	}
-	if (cmpnts[cmpnt_index]._data == "PASS" || cmpnts[cmpnt_index]._data == "NICK" || cmpnts[cmpnt_index]._data == "USER")
-		cl_registration(cl, cmpnts[cmpnt_index]._data);
-	else if (cmpnts[cmpnt_index]._data == "PING")
+	std::string cmd = tolow(cmpnts[cmpnt_index]._data);
+	if (cmd == "pass" || cmd == "nick" || cmd == "user")
+		cl_registration(cl, cmd);
+	else if (cmd == "ping")
 		cl_ping(cl);
-	else if (cmpnts[cmpnt_index]._data == "JOIN")
+	else if (cmd == "join")
 		cl_join(cl);
-	else if (cmpnts[cmpnt_index]._data == "PART")
+	else if (cmd == "part")
 		cl_part(cl);
-	else if (cmpnts[cmpnt_index]._data == "PRIVMSG")
+	else if (cmd == "privmsg")
 		cl_privmsg(cl);
-	else if (cmpnts[cmpnt_index]._data == "TOPIC")
+	else if (cmd == "topic")
 		cl_topic(cl);
-	else if (cmpnts[cmpnt_index]._data == "KICK")
+	else if (cmd == "kick")
 		cl_kick(cl);
-	else if (cmpnts[cmpnt_index]._data == "INVITE")
+	else if (cmd == "invite")
 		cl_invite(cl);
-	else if (cmpnts[cmpnt_index]._data == "MODE")
+	else if (cmd == "mode")
 		cl_mode(cl);
 	else
 		cl.out_buf += ":server 421 " + cl.nickname + " " + cmpnts[cmpnt_index]._data + " :Unknown command\r\n";
