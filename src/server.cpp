@@ -1,5 +1,4 @@
 #include "../includes/server.hpp"
-
 void server::handle_client_line(Clients &cl, const std::string &line)
 {
 	if (line.empty())

@@ -1,10 +1,9 @@
 #ifndef CLIENTS_HPP
 #define CLIENTS_HPP
-
 #include <iostream>
 #include <string>
 #include <vector>
-
+static const size_t kMaxOutputBufferBytes = 102400;
 typedef enum e_cmpnt_type
 {
 	PREFIX,
@@ -12,13 +11,11 @@ typedef enum e_cmpnt_type
 	MIDDLE,
 	TRAILING
 } t_cmpnt_type;
-
 typedef struct s_cmpnts
 {
 	std::string _data;
 	t_cmpnt_type _type;
 } t_cmpnts;
-
 class Clients
 {
 private:
@@ -31,7 +28,6 @@ public:
     std::string password;
     std::string out_buf;
     bool registred;
-
     Clients();
     explicit Clients(int fd);
     ~Clients(){};
@@ -44,5 +40,4 @@ public:
     void clearComponents();
     const std::vector<t_cmpnts> &getComponents() const;
 };
-
 #endif

@@ -1,7 +1,5 @@
 #include "../includes/clients.hpp"
-
 static const size_t kMaxClientBufferBytes = 8192;
-
 static void pushComponent(std::vector<t_cmpnts> &components, const std::string &data, t_cmpnt_type type)
 {
     t_cmpnts component;
@@ -96,7 +94,6 @@ void Clients::tokenizeMessage(const std::string &line)
     size_t i = 0;
     bool hasPrefix = false;
     bool hasCommand = false;
-
     this->clearComponents();
     while (i < line.size() && line[i] == ' ')
         ++i;
@@ -115,7 +112,6 @@ void Clients::tokenizeMessage(const std::string &line)
             hasPrefix = true;
             continue;
         }
-
         size_t start = i;
         while (i < line.size() && line[i] != ' ')
             ++i;

@@ -1,16 +1,13 @@
 #include "../../includes/server.hpp"
-
 void server::cl_part(Clients &client)
 {
 	if (!client.registred)
 	{
-		client.out_buf += ":server 451 " + client.nickname + " PART :You have not registered\r\n";
+		client.out_buf += ":server 451 " + client.nickname + " :You have not registered\r\n";
 		return;
 	}
-
 	const std::vector<t_cmpnts> &cmpnts = client.getComponents();
 	size_t cmpnt_index = 0;
-
 	if (!cmpnts.empty() && cmpnts[0]._type == PREFIX)
 		cmpnt_index = 1;
 	if (cmpnts.size() < cmpnt_index + 2 || cmpnts[cmpnt_index + 1]._type != MIDDLE)

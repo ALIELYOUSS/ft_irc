@@ -1,38 +1,30 @@
 #include "../../includes/server.hpp"
-
 #include <sstream>
-
 void server::cl_join(Clients &client)
 {
 	if (!client.registred)
 	{
-		client.out_buf += ":server 451 " + client.nickname + " JOIN :You have not registered\r\n";
+		client.out_buf += ":server 451 " + client.nickname + " :You have not registered\r\n";
 		return;
 	}
-
 	const std::vector<t_cmpnts> &cmpnts = client.getComponents();
 	size_t cmpnt_index = 0;
-
 	if (!cmpnts.empty() && cmpnts[0]._type == PREFIX)
 		cmpnt_index = 1;
-
 	if (cmpnts.size() < cmpnt_index + 2)
 	{
 		client.out_buf += ":server 461 " + client.nickname + " JOIN :Not enough parameters\r\n";
 		return;
 	}
-
 	if (cmpnts[cmpnt_index + 1]._type != MIDDLE)
 	{
 		client.out_buf += ":server 461 " + client.nickname + " JOIN :Not enough parameters\r\n";
 		return;
 	}
-
 	std::vector<std::string> channels = splitByComma(cmpnts[cmpnt_index + 1]._data);
 	std::vector<std::string> keys;
 	if (cmpnts.size() >= cmpnt_index + 3 && cmpnts[cmpnt_index + 2]._type == MIDDLE)
 		keys = splitByComma(cmpnts[cmpnt_index + 2]._data);
-
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		std::string chanName = channels[i];
@@ -61,11 +53,9 @@ void server::cl_join(Clients &client)
 				client.out_buf += ":server 476 " + client.nickname + " " + chanName + " :Bad Channel Mask\r\n";
 			continue;
 		}
-
 		channel.addMember(client.getFd());
 		if (channel.memberCount() == 1)
 			channel.addOperator(client.getFd());
-
 		std::string joinMsg = ":" + client.nickname + "!" + client.username + "@localhost JOIN " + chanName + "\r\n";
 		const std::set<int> &members = channel.getMembers();
 		for (std::set<int>::iterator it = members.begin(); it != members.end(); ++it)
@@ -80,12 +70,14 @@ void server::cl_join(Clients &client)
 				}
 			}
 		}
-
 		if (!channel.getTopic().empty())
 		{
 			client.out_buf += ":server 332 " + client.nickname + " " + chanName + " :" + channel.getTopic() + "\r\n";
 		}
-
+		else
+		{
+			client.out_buf += ":server 331 " + client.nickname + " " + chanName + " :No topic is set\r\n";
+		}
 		client.out_buf += ":server 353 " + client.nickname + " = " + chanName + " :";
 		for (std::set<int>::iterator it = members.begin(); it != members.end(); ++it)
 		{

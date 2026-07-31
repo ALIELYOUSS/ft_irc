@@ -1,6 +1,4 @@
 #include "../includes/channel.hpp"
-
-
 static bool isValidChannelName(const std::string &channelName){
     if (channelName.empty() || channelName[0] != '#')
         return false;

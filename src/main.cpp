@@ -1,5 +1,4 @@
 #include "../includes/server.hpp"
-
 int main(int ac, char **av){
     if (ac != 3){
         std::cout << "Bad arguments" << std::endl;

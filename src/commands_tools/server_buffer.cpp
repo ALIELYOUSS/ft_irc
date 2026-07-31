@@ -1,5 +1,4 @@
 #include "../../includes/server.hpp"
-
 void server::process_client_buffers()
 {
 	for (size_t i = 0; i < this->client.size(); ++i)
