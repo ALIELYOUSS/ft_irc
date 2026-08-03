@@ -88,11 +88,9 @@ void server::remove_client(size_t index)
 		<< " disconnected (total clients: " << (this->client.size() - 1) << ")" << std::endl;
 	{
 		std::map<std::string, Channel>::iterator it = this->channels.begin();
-		while (it != this->channels.end())
-		{
+		while (it != this->channels.end()){
 			Channel &channel = it->second;
-			if (channel.isMember(fd))
-			{
+			if (channel.isMember(fd)){
 				channel.removeMember(fd);
 				channel.removeOperator(fd);
 			}
@@ -114,23 +112,19 @@ void server::handle_client_event(size_t index)
 		remove_client(index);
 		return;
 	}
-	if (this->fds[index].revents & POLLOUT)
-	{
+	if (this->fds[index].revents & POLLOUT){
 		size_t client_idx = index - 1;
 		if (client_idx < this->client.size())
 		{
-			if (this->client[client_idx].out_buf.size() > kMaxOutputBufferBytes)
-			{
+			if (this->client[client_idx].out_buf.size() > kMaxOutputBufferBytes){
 				std::cerr << "[BUFFER_OVERFLOW] Client fd=" << fd
 					<< " output buffer exceeded " << kMaxOutputBufferBytes
 					<< " bytes (" << this->client[client_idx].out_buf.size() << "), disconnecting" << std::endl;
 				remove_client(index);
 				return;
 			}
-			if (!this->client[client_idx].out_buf.empty())
-			{
-				if (!send_msg(this->client[client_idx]))
-				{
+			if (!this->client[client_idx].out_buf.empty()){
+				if (!send_msg(this->client[client_idx])){
 					std::cerr << "send() error on fd=" << fd << std::endl;
 					remove_client(index);
 					return;
@@ -165,8 +159,7 @@ void server::handle_client_event(size_t index)
 
 void server::run_event_loop()
 {
-	while (server::running)
-	{
+	while (server::running){
 		int ready = poll(this->fds.data(), this->fds.size(), -1);
 		if (ready < 0)
 		{
@@ -184,13 +177,11 @@ void server::run_event_loop()
 			std::cout << "poll() timeout, clients has 0 event" << std::endl;
 			continue;
 		}
-		if (this->fds[0].revents & POLLIN)
-		{
+		if (this->fds[0].revents & POLLIN){
 			std::cout << "Listener fd ready, accepting connection..." << std::endl;
 			accept_client();
 		}
-		for (size_t i = 1; i < this->fds.size();)
-		{
+		for (size_t i = 1; i < this->fds.size();){
 			size_t currentSize = this->fds.size();
 			handle_client_event(i);
 			if (this->fds.size() == currentSize)
