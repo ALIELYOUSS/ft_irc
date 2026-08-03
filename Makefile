@@ -1,6 +1,6 @@
 NAME = ircserv
-CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+G++ = c++
+G++FLAGS = -Wall -Wextra -Werror -std=c++98
 INCLUDES = -Iincludes
 SRCS = \
 	src/main.cpp \
@@ -24,9 +24,9 @@ SRCS = \
 OBJS = $(SRCS:.cpp=.o)
 all: $(NAME)
 $(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	$(G++) $(G++FLAGS) $(OBJS) -o $(NAME)
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(G++) $(G++FLAGS) $(INCLUDES) -c $< -o $@
 clean:
 	rm -f $(OBJS)
 fclean: clean

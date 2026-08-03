@@ -3,7 +3,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
 static const size_t kMaxOutputBufferBytes = 102400;
+
 typedef enum e_cmpnt_type
 {
 	PREFIX,
@@ -11,11 +13,13 @@ typedef enum e_cmpnt_type
 	MIDDLE,
 	TRAILING
 } t_cmpnt_type;
+
 typedef struct s_cmpnts
 {
 	std::string _data;
 	t_cmpnt_type _type;
 } t_cmpnts;
+
 class Clients
 {
 private:

@@ -1,16 +1,13 @@
 #include "../../includes/server.hpp"
 #include <cerrno>
+
 bool server::send_msg(Clients &client)
 {
 	while (!client.out_buf.empty())
 	{
-		ssize_t sent = send(client.getFd(), client.out_buf.c_str(), client.out_buf.size(), 0);
+		ssize_t sent = send(client.getFd(), client.out_buf.c_str(), client.out_buf.size(), MSG_NOSIGNAL);
 		if (sent < 0)
-		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				break;
 			return false;
-		}
 		client.out_buf.erase(0, static_cast<size_t>(sent));
 	}
 	return true;
@@ -27,8 +24,7 @@ void server::flush_out_buffers()
 				<< " bytes (" << this->client[i].out_buf.size() << "), disconnecting" << std::endl;
 			for (size_t j = 0; j < this->fds.size(); ++j)
 			{
-				if (this->fds[j].fd == this->client[i].getFd())
-				{
+				if (this->fds[j].fd == this->client[i].getFd()){
 					remove_client(j);
 					break;
 				}
@@ -38,8 +34,7 @@ void server::flush_out_buffers()
 		}
 		if (this->client[i].out_buf.empty())
 			continue;
-		if (!send_msg(this->client[i]))
-		{
+		if (!send_msg(this->client[i])){
 			std::cerr << "send() error\n";
 			this->client[i].out_buf.clear();
 		}

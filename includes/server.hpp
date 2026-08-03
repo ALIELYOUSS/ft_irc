@@ -1,5 +1,8 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
+#include <cerrno>
+#include <iomanip>
+#include <fcntl.h>
 #include "channel.hpp"
 #include "clients.hpp"
 #include <unistd.h>
