@@ -49,6 +49,10 @@ void server::setup_listener()
 		close(socket_fd);
 		throw std::runtime_error("Failed to listen on the socket\n");
 	}
+	if (fcntl(socket_fd, F_SETFL, O_NONBLOCK) == -1){
+		close(socket_fd);
+		throw std::runtime_error("failed to set socket to NON_blocking");	
+	}
 	this->socket_file = socket_fd;
 	this->fds.push_back(make_pollfd(this->socket_file));
 }
@@ -169,7 +173,7 @@ void server::run_event_loop()
 			}
 			if (errno == EINTR){
 				std::cout << "poll() interrupted" << std::endl;
-				continue;
+				continue ;
 			}
 			throw std::runtime_error("poll failed\n");
 		}
